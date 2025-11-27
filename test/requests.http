@@ -1,0 +1,39 @@
+
+###
+# =======================================================
+# TESTES PARA A API DE USUÁRIOS
+# =======================================================
+# Use a extensão "REST Client" do VSCode para executar.
+# Cada bloco separado por "###" é um teste independente.
+# =======================================================
+
+
+###
+# 1. CRIAR um novo usuário (POST)
+# O servidor deve responder com status 201 (Created)
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+  "nome": "Rafaela",
+  "email": "rafa@email.com",
+  "senha": "12345"
+}
+###
+GET http://localhost:3000/users
+
+###
+POST http://localhost:3000/pontos
+Content-Type: application/json
+
+{
+  "user_id": 4,
+  "data": "2025-12-01",
+  "hora_entrada": "14:00",
+  "hora_saida": "15:00",
+  "localizacao": "Remoto",
+  "total_horas": "1h"
+}
+
+###
+GET http://localhost:3000/pontos

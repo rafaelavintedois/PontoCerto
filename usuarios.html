@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista de Usuários</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 50px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background: #333;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background: #f2f2f2;
+    }
+
+    .voltar {
+      display: block;
+      margin: 20px auto 0;
+      padding: 10px 20px;
+      background: #4CAF50;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      text-align: center;
+      width: fit-content;
+    }
+
+    .voltar:hover {
+      background: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Usuários Cadastrados</h1>
+    <table id="tabelaUsuarios">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nome</th>
+          <th>Email</th>
+          <th>Senha</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <a href="index.html" class="voltar">Voltar</a>
+  </div>
+
+  <script>
+    function carregarUsuarios() {
+      const tabela = document.querySelector('#tabelaUsuarios tbody');
+      const usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
+
+      tabela.innerHTML = '';
+
+      if (usuarios.length === 0) {
+        tabela.innerHTML = `<tr><td colspan="4" style="text-align:center;">Nenhum usuário cadastrado</td></tr>`;
+        return;
+      }
+
+      usuarios.forEach((u, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${i + 1}</td>
+          <td>${u.nome || '-'}</td>
+          <td>${u.email || '-'}</td>
+          <td>${u.senha || '-'}</td>
+        `;
+        tabela.appendChild(tr);
+      });
+    }
+
+    carregarUsuarios();
+  </script>
+</body>
+</html>

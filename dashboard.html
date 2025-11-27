@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ponto Certo - Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="dashboard-page">
+  <header>
+    <a href="logo.png">
+        <img src="logo.png" height="150" width="150" alt="Logo">
+    </a>
+    <div id="userInfo"></div>
+  </header>
+
+  
+    <div id="dashboardHeader">
+        <h1>Bem-vindo(a)!</h1>
+        <button id="btnLogout">Sair</button>
+    </div>
+
+
+  <main>
+    <section class="card">
+      <h2>Bater ponto</h2>
+      <button id="btnPonto">Registrar horário</button>
+      <p id="mensagem"></p>
+    </section>
+      
+    <section class="card">
+      <h2>Histórico</h2>
+      <table id="tabelaPontos">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Entrada</th>
+            <th>Saída</th>
+            <th>Localização</th>
+            <th>Tempo</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
