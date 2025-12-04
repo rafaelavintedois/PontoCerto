@@ -6,42 +6,60 @@
   <title>Ponto Certo - Login</title>
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body class="login-page">
   <div class="login-card">
-        <a href="logo.png">
-            <img src="logo.png" height="150" width="150" alt="Logo">
-        </a>
-        
-        <!-- LOGIN -->
-        <div id="loginForm">
-        <h2>Entrar</h2>
+
+    <!-- LOGO -->
+    <a href="#">
+      <img src="logo.png" height="150" width="150" alt="Logo">
+    </a>
+
+    <!-- LOGIN -->
+    <div id="loginForm">
+      <h2>Entrar</h2>
+
+      <form id="form-login">
         <input type="email" id="emailLogin" placeholder="E-mail" required />
         <input type="password" id="senhaLogin" placeholder="Senha" required />
-        <button id="btnLogin">Entrar</button>
-        <p id="erroLogin" class="erro"></p>
-        <p>
-            Ainda não tem conta?
-            <a href="#" id="linkCadastro">Criar conta</a>
-        </p>
+        <button type="submit" id="btnLogin">Entrar</button>
+      </form>
+
+      <p id="erroLogin" class="erro"></p>
+
+      <p>
+        Ainda não tem conta?
+        <a href="#" id="linkCadastro">Criar conta</a>
+      </p>
     </div>
 
     <!-- CADASTRO -->
     <div id="cadastroForm" style="display: none;">
       <h2>Criar conta</h2>
-      <input type="text" id="nomeCadastro" placeholder="Nome completo" required />
-      <input type="email" id="emailCadastro" placeholder="E-mail" required />
-      <input type="password" id="senhaCadastro" placeholder="Senha" required />
-      <input type="text" id="cargoCadastro" placeholder="Cargo (opcional)" />
-      <input type="text" id="departamentoCadastro" placeholder="Departamento (opcional)" />
-      <button id="btnCadastro">Cadastrar</button>
+
+      <form id="form-cadastro">
+        <input type="text" id="nomeCadastro" placeholder="Nome completo" required />
+        <input type="email" id="emailCadastro" placeholder="E-mail" required />
+        <input type="password" id="senhaCadastro" placeholder="Senha" required />
+
+        <!-- Esses dois são opcionais -->
+        <input type="text" id="cargoCadastro" placeholder="Cargo (opcional)" />
+        <input type="text" id="departamentoCadastro" placeholder="Departamento (opcional)" />
+
+        <button type="submit" id="btnCadastro">Cadastrar</button>
+      </form>
+
       <p id="msgCadastro" class="sucesso"></p>
+
       <p>
         Já tem conta?
         <a href="#" id="linkLogin">Fazer login</a>
       </p>
     </div>
+
   </div>
 
-  <script src="script.js"></script>
+  <script type="module" src="script.js"></script>
+
 </body>
 </html>
