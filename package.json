@@ -6,6 +6,26 @@
     "@supabase/supabase-js": "^2.39.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
-    "express": "^4.19.0"
-  }
+    "express": "^4.22.1"
+  },
+  "description": "��#\u0000 \u0000P\u0000o\u0000n\u0000t\u0000o\u0000C\u0000e\u0000r\u0000t\u0000o\u0000\r\u0000 \u0000#\u0000 \u0000P\u0000o\u0000n\u0000t\u0000o\u0000C\u0000e\u0000r\u0000t\u0000o\u0000\r\u0000 \u0000",
+  "main": "dashboard.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rafaelavintedois/PontoCerto.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rafaelavintedois/PontoCerto/issues"
+  },
+  "homepage": "https://github.com/rafaelavintedois/PontoCerto#readme",
+  "devDependencies": {}
 }

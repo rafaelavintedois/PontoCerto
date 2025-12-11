@@ -6,9 +6,9 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const SUPABASE_URL = "https://bjbikfopvjtvcusffrjp.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJqYmlrZm9wdmp0dmN1c2ZmcmpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0NDk1NjEsImV4cCI6MjA3ODAyNTU2MX0.lWD6NrbeqwdB2KhBRUKk5jy822bcWe4ufIhQ58s_2dc";
 
-
 export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 window.supabase = supabase;
+
 
 // ===============================
 // CARREGAR USUÁRIO LOGADO
@@ -16,7 +16,6 @@ window.supabase = supabase;
 let usuario = null;
 
 async function carregarUsuario() {
-  // Primeiro tenta pegar a sessão
   const { data: sessionData } = await supabase.auth.getSession();
 
   if (!sessionData.session) {
@@ -28,36 +27,40 @@ async function carregarUsuario() {
   document.getElementById("userInfo").innerText = usuario.email;
 }
 
-
 carregarUsuario();
 
+
 // ===============================
-// PEGAR LOCALIZAÇÃO DO USUÁRIO
+// PEGAR LOCALIZAÇÃO
 // ===============================
 function pegarLocalizacao() {
   return new Promise((resolve) => {
     if (!navigator.geolocation) return resolve("Localização indisponível");
 
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const txt = `${pos.coords.latitude}, ${pos.coords.longitude}`;
-        resolve(txt);
-      },
+      (pos) => resolve(`${pos.coords.latitude}, ${pos.coords.longitude}`),
       () => resolve("Localização negada")
     );
   });
 }
 
+
 // ===============================
-// REGISTRAR ENTRADA OU SAÍDA
+// REGISTRAR ENTRADA E SAÍDA
 // ===============================
 document.getElementById("btnPonto").addEventListener("click", async () => {
   if (!usuario) return;
 
   const hoje = new Date().toISOString().split("T")[0];
+  const agora = new Date().toLocaleTimeString("pt-BR", { hour12: false });
+  const local = await pegarLocalizacao();
 
-  // Verificar se já existe entrada hoje
-  const { data: registros } = await supabase
+  // Buscar últimos registros de hoje
+  console.log("========== DEBUG ==========");
+  console.log("User ID enviado:", usuario.id);
+  console.log("Data enviada:", hoje);
+
+  const { data: registros, error } = await supabase
     .from("pontos")
     .select("*")
     .eq("user_id", usuario.id)
@@ -65,35 +68,28 @@ document.getElementById("btnPonto").addEventListener("click", async () => {
     .order("id", { ascending: false })
     .limit(1);
 
-  const local = await pegarLocalizacao();
-  const agora = new Date().toLocaleTimeString("pt-BR", { hour12: false });
-
-  // ============================
-  // 1) Registrar ENTRADA
-  // ============================
-  const { data: registros, error } = await supabase
-  .from("pontos")
-  .select("*")
-  .eq("user_id", usuario.id)
-  .eq("data", hoje)
-  .order("id", { ascending: false })
-  .limit(1);
-
-  console.log("SELECT registros →", registros, error);
-
-  // Se deu erro no SELECT → provavelmente é problema de RLS
   if (error) {
     alert("Erro ao consultar registros: " + error.message);
     return;
   }
 
-  // Se registros é null, vira array vazio
-  const lista = registros ?? [];
+  const ultimo = registros?.[0];
 
-  if (lista.length === 0 || (lista[0].hora_entrada !== null && lista[0].hora_saida !== null)) {
-    
+  // ======================
+  // SE NÃO TEM REGISTRO → ENTRADA
+  // ======================
+  if (!ultimo || (ultimo.hora_entrada && ultimo.hora_saida)) {
+    const { error } = await supabase
+      .from("pontos")
+      .insert({
+        user_id: usuario.id,
+        data: hoje,
+        hora_entrada: agora,
+        localizacao: local
+      });
+
     if (error) {
-      alert("Erro ao registrar entrada.");
+      alert("Erro ao registrar entrada!");
       return;
     }
 
@@ -102,34 +98,32 @@ document.getElementById("btnPonto").addEventListener("click", async () => {
     return;
   }
 
-  // ============================
-  // 2) Registrar SAÍDA
-  // ============================
-  const registro = registros[0];
-
-  if (registro.hora_entrada && !registro.hora_saida) {
-    const h1 = new Date(`${hoje}T${registro.hora_entrada}`);
+  // ======================
+  // SE TEM ENTRADA SEM SAÍDA → REGISTRAR SAÍDA
+  // ======================
+  if (ultimo.hora_entrada && !ultimo.hora_saida) {
+    const h1 = new Date(`${hoje}T${ultimo.hora_entrada}`);
     const h2 = new Date(`${hoje}T${agora}`);
     const total = ((h2 - h1) / 1000 / 60 / 60).toFixed(2);
 
-    const { error } = await window.supabase
+    const { error } = await supabase
       .from("pontos")
       .update({
         hora_saida: agora,
         total_horas: total
       })
-      .eq("id", registro.id);
+      .eq("id", ultimo.id);
 
     if (error) {
-      alert("Erro ao registrar saída.");
+      alert("Erro ao registrar saída!");
       return;
     }
 
     document.getElementById("mensagem").innerText = "Saída registrada!";
     carregarHistorico();
-    return;
   }
 });
+
 
 // ===============================
 // CARREGAR HISTÓRICO
@@ -137,7 +131,7 @@ document.getElementById("btnPonto").addEventListener("click", async () => {
 async function carregarHistorico() {
   if (!usuario) return;
 
-  const { data, error } = await window.supabase
+  const { data, error } = await supabase
     .from("pontos")
     .select("*")
     .eq("user_id", usuario.id)
@@ -163,12 +157,10 @@ async function carregarHistorico() {
     tbody.appendChild(linha);
   });
 
-  // Eventos excluir
   document.querySelectorAll(".btnExcluir").forEach((btn) => {
     btn.addEventListener("click", async () => {
       const id = btn.getAttribute("data-id");
-
-      await window.supabase.from("pontos").delete().eq("id", id);
+      await supabase.from("pontos").delete().eq("id", id);
       carregarHistorico();
     });
   });
@@ -176,11 +168,11 @@ async function carregarHistorico() {
 
 carregarHistorico();
 
+
 // ===============================
 // LOGOUT
 // ===============================
 document.getElementById("btnLogout").addEventListener("click", async () => {
-  await window.supabase.auth.signOut();
+  await supabase.auth.signOut();
   window.location.href = "index.html";
 });
-

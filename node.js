@@ -3,7 +3,7 @@ import cors from "cors";
 import { createClient } from "@supabase/supabase-js";
 
 import { configDotenv } from "dotenv";
-configDotenv(); // CORRETO
+configDotenv();
 
 const app = express();
 app.use(cors());
@@ -16,11 +16,11 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 
 // =========================================================
-//  LISTAR USERS (GET /users)
+//  LISTAR USUÁRIOS (GET /usuarios)
 // =========================================================
-app.get('/users', async (req, res) => {
+app.get('/usuarios', async (req, res) => {
     try {
-        let { data, error } = await supabase.from('users').select('*');
+        let { data, error } = await supabase.from('usuarios').select('*');
 
         if (error) {
             return res.status(500).json({ error });
@@ -28,16 +28,16 @@ app.get('/users', async (req, res) => {
 
         res.json(data);
     } catch (error) {
-        console.log("ERRO /users " + error);
+        console.log("ERRO /usuarios " + error);
         res.status(500).json({ error: error.message });
     }
 });
 
 
 // =========================================================
-//  CRIAR USER (POST /users)
+//  CRIAR USUÁRIO (POST /usuarios)
 // =========================================================
-app.post('/users', async (req, res) => {
+app.post('/usuarios', async (req, res) => {
     try {
         const { nome, email, senha } = req.body;
 
@@ -46,7 +46,7 @@ app.post('/users', async (req, res) => {
         }
 
         const { data, error } = await supabase
-            .from('users')
+            .from('usuarios')
             .insert([{ nome, email, senha }])
             .select()
             .single();
@@ -62,6 +62,7 @@ app.post('/users', async (req, res) => {
 
 // =========================================================
 //  LISTAR PONTOS (GET /pontos)
+//  Agora usando 'usuarios' no relacionamento
 // =========================================================
 app.get('/pontos', async (req, res) => {
     try {
@@ -74,7 +75,7 @@ app.get('/pontos', async (req, res) => {
                 hora_saida,
                 localizacao,
                 total_horas,
-                users (
+                usuarios (
                     id,
                     nome,
                     email
