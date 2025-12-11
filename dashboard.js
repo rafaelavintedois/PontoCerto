@@ -11,6 +11,18 @@ window.supabase = supabase;
 
 
 // ===============================
+// FUNÇÃO PARA FORMATAR HORA (HH:MM)
+// ===============================
+function formatarHora(date = new Date()) {
+  return date.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+  });
+}
+
+
+// ===============================
 // CARREGAR USUÁRIO LOGADO
 // ===============================
 let usuario = null;
@@ -31,17 +43,10 @@ carregarUsuario();
 
 
 // ===============================
-// PEGAR LOCALIZAÇÃO
+// LOCALIZAÇÃO SEMPRE = "REMOTO"
 // ===============================
-function pegarLocalizacao() {
-  return new Promise((resolve) => {
-    if (!navigator.geolocation) return resolve("Localização indisponível");
-
-    navigator.geolocation.getCurrentPosition(
-      (pos) => resolve(`${pos.coords.latitude}, ${pos.coords.longitude}`),
-      () => resolve("Localização negada")
-    );
-  });
+async function pegarLocalizacao() {
+  return "REMOTO";
 }
 
 
@@ -52,13 +57,8 @@ document.getElementById("btnPonto").addEventListener("click", async () => {
   if (!usuario) return;
 
   const hoje = new Date().toISOString().split("T")[0];
-  const agora = new Date().toLocaleTimeString("pt-BR", { hour12: false });
-  const local = await pegarLocalizacao();
-
-  // Buscar últimos registros de hoje
-  console.log("========== DEBUG ==========");
-  console.log("User ID enviado:", usuario.id);
-  console.log("Data enviada:", hoje);
+  const agora = formatarHora(); // hora bonitinha
+  const local = "REMOTO";
 
   const { data: registros, error } = await supabase
     .from("pontos")
@@ -75,8 +75,9 @@ document.getElementById("btnPonto").addEventListener("click", async () => {
 
   const ultimo = registros?.[0];
 
+
   // ======================
-  // SE NÃO TEM REGISTRO → ENTRADA
+  // NOVO REGISTRO → ENTRADA
   // ======================
   if (!ultimo || (ultimo.hora_entrada && ultimo.hora_saida)) {
     const { error } = await supabase
@@ -98,12 +99,13 @@ document.getElementById("btnPonto").addEventListener("click", async () => {
     return;
   }
 
+
   // ======================
-  // SE TEM ENTRADA SEM SAÍDA → REGISTRAR SAÍDA
+  // EXISTE ENTRADA → REGISTRAR SAÍDA
   // ======================
   if (ultimo.hora_entrada && !ultimo.hora_saida) {
     const h1 = new Date(`${hoje}T${ultimo.hora_entrada}`);
-    const h2 = new Date(`${hoje}T${agora}`);
+    const h2 = new Date(`${hoje}T${formatarHora()}`);
     const total = ((h2 - h1) / 1000 / 60 / 60).toFixed(2);
 
     const { error } = await supabase
@@ -143,13 +145,17 @@ async function carregarHistorico() {
   tbody.innerHTML = "";
 
   data.forEach((p) => {
+    // formatação de horas antes de mostrar
+    const entrada = p.hora_entrada ? p.hora_entrada.slice(0, 5) : "-";
+    const saida = p.hora_saida ? p.hora_saida.slice(0, 5) : "-";
+
     const linha = document.createElement("tr");
 
     linha.innerHTML = `
       <td>${p.data}</td>
-      <td>${p.hora_entrada ?? "-"}</td>
-      <td>${p.hora_saida ?? "-"}</td>
-      <td>${p.localizacao ?? "-"}</td>
+      <td>${entrada}</td>
+      <td>${saida}</td>
+      <td>REMOTO</td>
       <td>${p.total_horas ?? "-"}</td>
       <td><button class="btnExcluir" data-id="${p.id}">Excluir</button></td>
     `;
